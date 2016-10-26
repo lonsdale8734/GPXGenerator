@@ -37,7 +37,7 @@ def distance(lon1, lat1, lon2, lat2):
     return c * r * 1000
 
 #include start point, exclude stop point
-def calculatePoints(startPoint, stopPoint, stepDistance):
+def calculateStepPoints(startPoint, stopPoint, stepDistance):
 	d = distance(*startPoint, *stopPoint)
 	n = ceil(d / stepDistance)
 
@@ -51,17 +51,13 @@ def calculatePoints(startPoint, stopPoint, stepDistance):
 		points.append((lat, lon))
 	return points
 
-
-
-def buildGPX(prePoints, stepDistance=2):
+def calculateAllPoints(prePoints, stepDistance=1.5):
 	waypoints = []
 	for i in range(len(prePoints) - 1):
-		stepPoints = calculatePoints(prePoints[i], prePoints[i + 1], stepDistance)
+		stepPoints = calculateStepPoints(prePoints[i], prePoints[i + 1], stepDistance)
 		waypoints.extend(stepPoints)
 	waypoints.append(prePoints[-1])
-
-	return generateGPX(waypoints)
-
+	return waypoints
 
 
 if __name__ == '__main__':
@@ -69,5 +65,7 @@ if __name__ == '__main__':
 		(1.2982572, 103.7878278),
 		(1.2991791, 103.7857474),
 	]
+
+	waypoints = calculateAllPoints(prePoints, stepDistance)
 	with open('point.gpx', 'w') as writer:
-		writer.write(buildGPX(prePoints))
+		writer.write(generateGPX(waypoints))

@@ -43,24 +43,30 @@ function createMap(callback) {
 	return markerGroup;
 }
 
-function submit(markerGroup) {
-	$('#submit').on('click', function() {
-		var data = '[';
-		var seperator = '';
-		markerGroup.forEach(function(marker) {
-			var latLng = marker.getPosition();
-			if (latLng) data += seperator + '[' + latLng.lat() +
-				',' + latLng.lng() + ']';
-			seperator = ',';
-		});
-		data += ']';
+function formatMarkers(markerGroup) {
+	var data = '[';
+	var seperator = '';
 
+	markerGroup.forEach(function(marker) {
+		var latLng = marker.getPosition();
+		if (latLng) data += seperator + '[' + latLng.lat() +
+			',' + latLng.lng() + ']';
+		seperator = ',';
+	});
+
+	data += ']';
+	return data;
+}
+
+function check(markerGroup) {
+	$('#check').on('click', function() {
+		var data = formatMarkers(markerGroup);
 		if (data === '[]') return;
 
 		var newTab = window.open('', '_blank');
 		$.ajax({
 			type: 'POST',
-			url: '/gpx',
+			url: '/view',
 			contentType: "application/json; charset=utf-8",
 			data: data,
 			success: function(response) {
@@ -70,26 +76,40 @@ function submit(markerGroup) {
 	});
 }
 
-function download(markerGroup) {
-	$('#submit').on('click', function() {
-		var data = '[';
-		var seperator = '';
-		markerGroup.forEach(function(marker) {
-			var latLng = marker.getPosition();
-			if (latLng) data += seperator + '[' + latLng.lat() +
-				',' + latLng.lng() + ']';
-			seperator = ',';
-		});
-		data += ']';
-
+function check2(markerGroup) {
+	$('#check').on('click', function() {
+		var data = formatMarkers(markerGroup);
 		if (data === '[]') return;
+		window.open('/view?' + data, '_blank');
+	});
+}
 
-		var newTab = window.open('/gpx?' + data, '_blank');
+function download(markerGroup) {
+	$('#download').on('click', function() {
+		var data = formatMarkers(markerGroup);
+		if (data === '[]') return;
+		window.open('/download?' + data, '_blank');
+	});
+}
+
+function clear(markerGroup) {
+	$('#clear').on('click', function() {
+		markerGroup.forEach(function(marker) {
+			if (marker) {
+				marker.setMap(null);
+				marker = null;
+			}
+		});
+		markerGroup.length = 0;
 	});
 }
 
 function initMap() {
-	createMap(download);
+	createMap(function(markerGroup) {
+		download(markerGroup);
+		check2(markerGroup);
+		clear(markerGroup);
+	});
 }
 
 initMap();
