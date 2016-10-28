@@ -21,7 +21,7 @@ def deltaDegree(distance):
 	return distance * 180 / (math.pi * R)
 
 #include start point, exclude stop point
-def calculateStepPoints(startPoint, stopPoint, stepDistance=1.5):
+def calculateStepPoints(startPoint, stopPoint, stepDistance=0.1):
 	d = distance(*startPoint, *stopPoint)
 	n = ceil(d / stepDistance)
 
@@ -35,7 +35,7 @@ def calculateStepPoints(startPoint, stopPoint, stepDistance=1.5):
 		points.append([lat, lon])
 	return points
 
-def calculateAllPoints(prePoints, stepDistance=1.5):
+def calculateAllPoints(prePoints, stepDistance=0.1):
 	waypoints = []
 	for i in range(len(prePoints) - 1):
 		stepPoints = calculateStepPoints(prePoints[i], prePoints[i + 1], stepDistance)
@@ -71,6 +71,12 @@ def calculateRoundPoints(level):
 		points.extend(getPointsInLevel(i))
 	return points[-1:0:-1]
 
+class RoutePoint(object):
+	"""docstring for RoutePoint"""
+	def __init__(self, arg):
+		super(RoutePoint, self).__init__()
+		self.arg = arg
+		
 
 class LineRoute(object):
 	"""docstring for LineRoute"""
@@ -172,6 +178,9 @@ def getCycleRoute(point):
 			item[1]*unit + point[1]])
 
 	return LineRoute(breakPoints, True)
+
+def getManualRoute(point):
+	pass
 
 def testSpeed():
 	pass

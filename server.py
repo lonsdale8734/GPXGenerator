@@ -17,7 +17,8 @@ class UserState(object):
 		self.__routeStack.append(route)
 
 	def removeRoute(self):
-		del self.__routeStack[-1]
+		if self.__routeStack:
+			del self.__routeStack[-1]
 
 	def clearRoute(self):
 		__routeStack = [] # del [:]
@@ -65,7 +66,7 @@ def setRoute():
 	getCurrentState().addRoute(route)
 	return 'ok'
 
-@app.route('/scan', methods = ['POST'])
+@app.route('/scan')
 def setCycleRoute():
 	print('start to scan ...')
 	point = getCurrentState().getCurrentPoint()

@@ -23,18 +23,20 @@ def getPosition():
 
 
 def main(toClick=False):
+	lastPoint = []
 	while True:
-		points = getPosition()
-		print('get points ... ', points)
-		updatePoint(points[0], points[1])
-		if toClick:
-			os.system('osascript autoClick.scpt')
+		point = getPosition()
+		if point:
+			print('get points ... ', point)
+			updatePoint(point[0], point[1])
+			if toClick:
+				os.system('osascript autoClicker.scpt')
 
 
 if __name__ == '__main__':
 	args = sys.argv
 
-	if len(args > 1):
+	if len(args) > 1:
 		main(True)
 	else:
 		main()
