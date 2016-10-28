@@ -30,7 +30,7 @@ def main(toClick=False):
 			print('get points ... ', point)
 			updatePoint(point[0], point[1])
 			if toClick:
-				os.system('osascript autoClicker.scpt')
+				os.system('osascript click.scpt')
 
 
 if __name__ == '__main__':
