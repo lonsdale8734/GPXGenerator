@@ -1,8 +1,8 @@
 import requests
-import os
+import os, sys
 
 GPX_SWITH_FILE = 'switch.gpx'
-ACCESS_POINT = 'http://192.168.0.128/gpx'
+ACCESS_POINT = 'http://192.168.0.128:9999/next'
 
 
 def buildSinglePointGpx(lat, lng):
@@ -19,17 +19,22 @@ def updatePoint(lat, lng):
 
 def getPosition():
 	r = requests.get(ACCESS_POINT)# 'a,b'
-	pointsStr = r.text
-	points = pointsStr.split(',')
-	return (float(points[0]), float(points[1]))
-	
+	return r.json()
 
-def main():
+
+def main(toClick=False):
 	while True:
 		points = getPosition()
+		print('get points ... ', points)
 		updatePoint(points[0], points[1])
-		#os.system('osascript autoClick.scpt')
+		if toClick:
+			os.system('osascript autoClick.scpt')
 
 
 if __name__ == '__main__':
-	main()
+	args = sys.argv
+
+	if len(args > 1):
+		main(True)
+	else:
+		main()

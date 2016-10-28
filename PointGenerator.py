@@ -32,7 +32,7 @@ def calculateStepPoints(startPoint, stopPoint, stepDistance=1.5):
 	for i in range(n):
 		lat = startPoint[0] + i * stepLat
 		lon = startPoint[1] + i * stepLon
-		points.append((lat, lon))
+		points.append([lat, lon])
 	return points
 
 def calculateAllPoints(prePoints, stepDistance=1.5):
@@ -54,17 +54,17 @@ def calculateRoundPoints(level):
 	#from most top left point
 		points = []
 		for i in range(1-n, n-1, 1):
-			points.append((i, n-1))
+			points.append([i, n-1])
 
 		for i in range(n-1, 1-n, -1):
-			points.append((n-1, i))
+			points.append([n-1, i])
 
 		for i in range(n-1, 1-n, -1):
-			points.append((i, 1-n))
+			points.append([i, 1-n])
 
 		for i in range(1-n, n-1, 1):
-			points.append((1-n, i))
-		return points or [(0, 0)]
+			points.append([1-n, i])
+		return points or [[0, 0]]
 
 	points = []
 	for i in range(level, 0, -1):
@@ -91,8 +91,9 @@ class LineRoute(object):
 		self.__backDirect = isDirect
 
 	def getNextPoint(self, speed):
+		print('try to get next point')
 		if not self.__stopped:
-			self.__currentPoint = self.getNextPoint(speed)
+			self.__currentPoint = self.__getNextPoint(speed)
 		return self.__currentPoint
 
 	def getCurrentPoint(self):
@@ -108,7 +109,7 @@ class LineRoute(object):
 		self.__currentPoint = point[:]
 
 	def __scaleSpeed(self, speed):
-		speed = math.round(speed)
+		speed = round(speed)
 		if speed < 0:
 			return 0
 		elif speed > 10:
@@ -124,6 +125,8 @@ class LineRoute(object):
 			nextIndex = lastIndex
 			self.__isBacking = True
 
+		print(nextIndex)
+		self.__pointIndex = nextIndex
 		return nextIndex
 
 	def __getNextBackPointIndex(self, speed):
@@ -134,10 +137,11 @@ class LineRoute(object):
 			nextIndex = firstIndex
 			self.__isBacking = False
 
+		self.__pointIndex = nextIndex
 		return nextIndex
 
 	def __getNextForwardPoint(self, speed):
-		nextIndex = self.__getNextBackPointIndex(speed)
+		nextIndex = self.__getNextForwardPointIndex(speed)
 		return self.__wayPoints[nextIndex]
 
 	def __getNextBackPoint(self, speed):
@@ -151,18 +155,21 @@ class LineRoute(object):
 	def __getNextPoint(self, speed):
 		speed = self.__scaleSpeed(speed)
 
-		lastIndex = len(self.__wayPoints) - 1
+		print(speed, self.__pointIndex)
+
 		if self.__isBacking:
+			print('backing ...')
 			return self.__getNextBackPoint(speed)
 		else:
+			print('forwarding ...')
 			return self.__getNextForwardPoint(speed)
 
 def getCycleRoute(point):
 	unit = deltaDegree(80) #meter
 	breakPoints = []
-	for item in calculateRoundPoints(3);
-		breakPoints.append(item[0]*unit + point[0],
-			item[1]*unit + point[1])
+	for item in calculateRoundPoints(3):
+		breakPoints.append([item[0]*unit + point[0],
+			item[1]*unit + point[1]])
 
 	return LineRoute(breakPoints, True)
 

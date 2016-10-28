@@ -26,13 +26,23 @@ class UserState(object):
 		self.__speed = speed
 
 	def getNextPoint(self):
-		return self.__routeStack[-1].getNextPoint(self.__speed)
+		if self.__routeStack:
+			return self.__routeStack[-1].getNextPoint(self.__speed)
+		else:
+			print('no route')
+			return []
 
 	def getCurrentPoint(self):
 		return self.__routeStack[-1].getCurrentPoint()
 
+	def pause(self):
+		return self.__routeStack[-1].pause()
 
-state = new UserState()
+	def start(self):
+		return self.__routeStack[-1].start()
+
+
+state = UserState()
 def getCurrentState():
 	return state
 
@@ -40,42 +50,64 @@ def getCurrentState():
 
 app = Flask(__name__)
 
+@app.route('/speed', methods = ['POST'])
+def setSpeed():
+	speed = request.get_json()#str
+	print('set speed to ', speed)
+	getCurrentState().setSpeed(float(speed))
+	return 'ok'
+
 @app.route('/route', methods = ['POST'])
 def setRoute():
+	print('add new route')
 	breakPoints = request.get_json()#[[s1,t1], [s2,t2]]
 	route = PointGenerator.LineRoute(breakPoints)
-	getCurrentState.addRoute(route)
+	getCurrentState().addRoute(route)
+	return 'ok'
 
-@app.route('/cycle', methods = ['POST'])
+@app.route('/scan', methods = ['POST'])
 def setCycleRoute():
-	breakPoints = request.get_json()#[[s1,t1], [s2,t2]]
-	route = PointGenerator.getCycleRoute(breakPoints[0])
-	getCurrentState.addRoute(route)
+	print('start to scan ...')
+	point = getCurrentState().getCurrentPoint()
+	route = PointGenerator.getCycleRoute(point)
+	getCurrentState().addRoute(route)
+	return 'ok'
+
+@app.route('/pop')
+def popRoute():
+	getCurrentState().removeRoute()
+	return 'ok'
 
 @app.route('/pause')
 def pause():
-	pass
+	getCurrentState().pause()
+	return 'ok'
 
 @app.route('/start')
 def start():
-	pass
+	getCurrentState().start()
+	return 'ok'
 
 @app.route('/next')
 def getNextPoint():
-	return str(getCurrentState.getNextPoint())
+	print('fetch next point')
+	nextPoint = getCurrentState().getNextPoint()
+	print('fetch next point', nextPoint, type(nextPoint))
+	return str(nextPoint)
 
 @app.route('/point', methods = ['GET'])
 def getCurrentPoint():
-	return str(getCurrentState.getCurrentPoint())
+	print('fetch current point')
+	return str(getCurrentState().getCurrentPoint())
 
 
 @app.route('/')
 def index():
-	return send_from_directory('', 'index.html')
+	return send_from_directory('front', 'index.html')
 
 @app.route('/<path:path>')
 def resource(path):
-	return send_from_directory('', path)
+	return send_from_directory('front', path)
 
 def main():
 	app.run(host = '0.0.0.0', port = 9999)
